@@ -44,26 +44,17 @@
 
 package com.example.androidthings.fancontrol;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.animation.ValueAnimator;
 import android.app.Activity;
 import android.content.Context;
 import android.graphics.Color;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
+
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.HandlerThread;
 import android.os.Message;
 import android.util.Log;
 import android.view.KeyEvent;
-import android.view.animation.LinearInterpolator;
-import android.widget.ImageView;
 
 import com.google.android.things.contrib.driver.apa102.Apa102;
 import com.google.android.things.contrib.driver.button.Button;
@@ -168,6 +159,8 @@ public class FanControlActivity extends Activity {
         } catch (IOException e) {
             throw new RuntimeException("Error initializing led", e);
         }
+
+        // Configure the Cloud IoT Connector --
     }
 
     @Override
@@ -222,8 +215,9 @@ public class FanControlActivity extends Activity {
                 mLed = null;
             }
         }
-    }
 
+        // clean up Cloud publisher.
+    }
 
     private Runnable mAnimateRunnable = new Runnable() {
         @Override
@@ -239,6 +233,8 @@ public class FanControlActivity extends Activity {
                 if (m_currTemp < 10) {
                     m_fanOn = false;
                 }
+            } else {
+                // Configuration messages are used to set fan state in another runnable.
             }
 
             if (!mIsConnected) {
@@ -255,14 +251,14 @@ public class FanControlActivity extends Activity {
                 }
             } else {
                 if (m_fanOn) {
-                    m_currTemp -= .1;
+                    m_currTemp -= .03;
                     for (int i = 0; i < colors.length; i++) {
                         int a = alphaTweak + (i * (255 / 7));
                         colors[6 - i] = Color.rgb(0, 0, a % 255);
                     }
                 } else {
                     alphaTweak += 255 / 7;
-                    m_currTemp += .1;
+                    m_currTemp += .03;
                     for (int i = 0; i < colors.length; i++) {
                         int a = alphaTweak + (i * (255 / 7));
                         colors[i] = Color.rgb(a % 255, 0, 0);
